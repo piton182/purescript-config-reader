@@ -17,7 +17,7 @@ instance applyConfigReader :: Apply f => Apply (ConfigReader f) where
 instance applicativeConfigReader :: Applicative f => Applicative (ConfigReader f) where
   pure = ConfigReader <<< pure
 
-instance bindSubscripton :: Bind m => Bind (ConfigReader m) where
+instance bindConfigReader :: Bind m => Bind (ConfigReader m) where
   bind (ConfigReader m) g = ConfigReader $ bind m \x ->
     case g x of
       (ConfigReader m') -> m'
@@ -25,7 +25,7 @@ instance bindSubscripton :: Bind m => Bind (ConfigReader m) where
 instance monadConfigReader :: Monad m => Monad (ConfigReader m)
 
 class RunConfigReader m where
-  runConfigReader :: forall cfg eff. m cfg -> (cfg -> Eff eff Unit) -> Eff eff Unit
+  runConfigReader :: forall cfg efl r. m cfg -> (cfg -> Eff eff r) -> Eff eff r
 
 --
 
@@ -39,7 +39,7 @@ newtype Timer = Timer Int
 instance showTimer :: Show Timer where
   show (Timer t) = show t
 
-instance runConfigReaderObservableSubscription :: RunConfigReader (ConfigReader Observable) where
+instance runConfigReaderObservable :: RunConfigReader (ConfigReader Observable) where
   runConfigReader (ConfigReader cfgs) g = void $ subscribeNext g cfgs
 
 instance monadAskConfigReader :: MonadAsk (Latest Timer) (ConfigReader Observable) where
